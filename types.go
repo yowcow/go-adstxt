@@ -112,9 +112,20 @@ func parseRecord(row string) (*Record, error) {
 	return &r, nil
 }
 
-// Variable is a variable row defined in iab (e.g., contact, subdomain, and such).
+// Variable represents a variable declaration in the ads.txt specification.
+// Variables are used to provide additional metadata or configuration, such as contact information or subdomain delegation.
+// For example, a variable row in ads.txt might look like:
+//   contact=ads@example.com
+//   subdomain=ads.subdomain.com
+//
+// Key is the variable name (e.g., "contact", "subdomain").
+// Value is the value assigned to the variable (e.g., "ads@example.com", "ads.subdomain.com").
 type Variable struct {
-	Key   string
+	// Key is the variable name in the ads.txt variable declaration.
+	// Example: "contact", "subdomain"
+	Key string
+	// Value is the value assigned to the variable in the ads.txt variable declaration.
+	// Example: "ads@example.com", "ads.subdomain.com"
 	Value string
 }
 
