@@ -61,7 +61,11 @@ func parseAccountType(s string) AccountType {
 }
 
 func parseRow(row string) (*Row, error) {
-	if strings.Contains(row, "=") {
+	// Check if "=" exists before the first ","
+	commaIndex := strings.Index(row, ",")
+	equalsIndex := strings.Index(row, "=")
+
+	if equalsIndex != -1 && (commaIndex == -1 || equalsIndex < commaIndex) {
 		// this is a variable declaration
 		v, err := parseVariable(row)
 		if err != nil {

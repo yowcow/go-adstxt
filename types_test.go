@@ -47,6 +47,29 @@ func TestParseRow(t *testing.T) {
 			},
 		},
 		{
+			"a record row with = in PublisherAccountID",
+			"example.com,pub=123,DIRECT",
+			&Row{
+				Record: &Record{
+					ExchangeDomain:     "example.com",
+					PublisherAccountID: "pub=123",
+					AccountType:        AccountDirect,
+				},
+			},
+		},
+		{
+			"a record row with = in AuthorityID",
+			"example.com,12345,DIRECT,auth=xyz",
+			&Row{
+				Record: &Record{
+					ExchangeDomain:     "example.com",
+					PublisherAccountID: "12345",
+					AccountType:        AccountDirect,
+					AuthorityID:        "auth=xyz",
+				},
+			},
+		},
+		{
 			"a variable row",
 			"contact=foo=bar=buz",
 			&Row{
