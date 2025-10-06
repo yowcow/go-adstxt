@@ -6,31 +6,6 @@ import (
 	"net/http"
 )
 
-// Record is ads.txt data field defined in iab.
-type Record struct {
-	// ExchangeDomain is domain name of the advertising system
-	ExchangeDomain string
-
-	// PublisherAccountID is the identifier associated with the seller
-	// or reseller account within the advertising system.
-	PublisherAccountID string
-
-	// AccountType is an enumeration of the type of account.
-	AccountType AccountType
-
-	// AuthorityID is an ID that uniquely identifies the advertising system
-	// within a certification authority.
-	AuthorityID string
-}
-
-const (
-	AccountDirect AccountType = iota
-	AccountReseller
-	AccountOther
-)
-
-type AccountType int
-
 func Get(rawurl string) ([]Record, error) {
 	resp, err := http.Get(rawurl)
 	if err != nil {
