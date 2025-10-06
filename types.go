@@ -95,11 +95,6 @@ func parseRecord(row string) (*Record, error) {
 
 	fields := strings.Split(row, ",")
 
-	// if the first field contains "=", then the row is for variable declaration
-	if strings.Contains(fields[0], "=") {
-		return nil, nil
-	}
-
 	if l := len(fields); l != 3 && l != 4 {
 		return nil, fmt.Errorf("ads.txt has fields length is incorrect.: %s", row)
 	}
@@ -119,8 +114,9 @@ func parseRecord(row string) (*Record, error) {
 // Variable represents a variable declaration in the ads.txt specification.
 // Variables are used to provide additional metadata or configuration, such as contact information or subdomain delegation.
 // For example, a variable row in ads.txt might look like:
-//   contact=ads@example.com
-//   subdomain=ads.subdomain.com
+//
+//	contact=ads@example.com
+//	subdomain=ads.subdomain.com
 //
 // Key is the variable name (e.g., "contact", "subdomain").
 // Value is the value assigned to the variable (e.g., "ads@example.com", "ads.subdomain.com").

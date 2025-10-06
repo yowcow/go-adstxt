@@ -29,9 +29,12 @@ func (p *Parser) Parse() (*Record, error) {
 		}
 
 		// returns when either is non-nil
-		r, err := parseRecord(text)
-		if r != nil || err != nil {
-			return r, err
+		r, err := parseRow(text)
+		if err != nil {
+			return nil, err
+		}
+		if r != nil && r.Record != nil {
+			return r.Record, nil
 		}
 	}
 

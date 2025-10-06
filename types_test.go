@@ -70,6 +70,18 @@ func TestParseRow(t *testing.T) {
 			},
 		},
 		{
+			"a record row with extension ; should drop extension",
+			"example.com,pub123,RESELLER,auth456;some extension data",
+			&Row{
+				Record: &Record{
+					ExchangeDomain:     "example.com",
+					PublisherAccountID: "pub123",
+					AccountType:        AccountReseller,
+					AuthorityID:        "auth456",
+				},
+			},
+		},
+		{
 			"a variable row",
 			"contact=foo=bar=buz",
 			&Row{
