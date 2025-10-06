@@ -96,7 +96,7 @@ func parseRecord(row string) (*Record, error) {
 	fields := strings.Split(row, ",")
 
 	if l := len(fields); l != 3 && l != 4 {
-		return nil, fmt.Errorf("ads.txt has fields length is incorrect.: %s", row)
+		return nil, fmt.Errorf("ads.txt field length is incorrect: %s", row)
 	}
 
 	// otherwise the row is valid
