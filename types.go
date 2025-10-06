@@ -14,14 +14,13 @@ type Row struct {
 	Variable *Variable
 }
 
+type AccountType int
+
 const (
 	AccountDirect AccountType = iota
 	AccountReseller
 	AccountOther
 )
-
-type AccountType int
-
 // Record is ads.txt data field defined in iab.
 type Record struct {
 	// ExchangeDomain is domain name of the advertising system
