@@ -1,7 +1,6 @@
 package adstxt_test
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -104,8 +103,8 @@ func TestParse(t *testing.T) {
 			if err != nil {
 				t.Errorf("parse ads.txt failed: %s", err)
 			}
-			if !reflect.DeepEqual(c.expected, record) {
-				t.Errorf("want %v, got %v", c.expected, record)
+			if d := cmp.Diff(c.expected, record); d != "" {
+				t.Errorf("mismatch (-want +got):\n%s", d)
 			}
 		})
 	}
