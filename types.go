@@ -64,14 +64,20 @@ func parseRow(row string) (*Row, error) {
 	if strings.Contains(row, "=") {
 		// this is a variable declaration
 		v, err := parseVariable(row)
-		if v != nil || err != nil {
-			return &Row{Variable: v}, err
+		if err != nil {
+			return nil, err
+		}
+		if v != nil {
+			return &Row{Variable: v}, nil
 		}
 	} else {
 		// this is a record declaration
 		r, err := parseRecord(row)
-		if r != nil || err != nil {
-			return &Row{Record: r}, err
+		if err != nil {
+			return nil, err
+		}
+		if r != nil {
+			return &Row{Record: r}, nil
 		}
 	}
 	return nil, nil
