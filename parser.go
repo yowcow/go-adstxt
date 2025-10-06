@@ -43,7 +43,7 @@ func (p *Parser) Parse() (*Record, error) {
 }
 
 // ParseRow returns a Row
-func (p *Parser) ParseRow() (Row, error) {
+func (p *Parser) ParseRow() (*Row, error) {
 	// scans for the first valid row or returns an error otherwise
 	for p.scanner.Scan() {
 		text := normalizeRow(p.scanner.Text())

@@ -5,10 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/suzuken/go-adstxt"
 )
 
-func TestParseAdstxt(t *testing.T) {
+func TestParse(t *testing.T) {
 	cases := []struct {
 		txt      string
 		expected []adstxt.Record
@@ -105,6 +106,117 @@ func TestParseAdstxt(t *testing.T) {
 			}
 			if !reflect.DeepEqual(c.expected, record) {
 				t.Errorf("want %v, got %v", c.expected, record)
+			}
+		})
+	}
+}
+
+func TestParseRows(t *testing.T) {
+	cases := []struct {
+		txt      string
+		expected []adstxt.Row
+	}{
+		{
+			txt: "example.com,1,DIRECT",
+			expected: []adstxt.Row{
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.com",
+						PublisherAccountID: "1",
+						AccountType:        adstxt.AccountDirect,
+					},
+				},
+			},
+		},
+		{
+			txt: "example.com,1,DIRECT\nfoo=bar",
+			expected: []adstxt.Row{
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.com",
+						PublisherAccountID: "1",
+						AccountType:        adstxt.AccountDirect,
+					},
+				},
+				{
+					Record:   nil,
+					Variable: &adstxt.Variable{Key: "foo", Value: "bar"},
+				},
+			},
+		},
+		{
+			txt: "# comment\nexample.org,2,RESELLER\nbaz=qux",
+			expected: []adstxt.Row{
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.org",
+						PublisherAccountID: "2",
+						AccountType:        adstxt.AccountReseller,
+					},
+					Variable: nil,
+				},
+				{
+					Record:   nil,
+					Variable: &adstxt.Variable{Key: "baz", Value: "qux"},
+				},
+			},
+		},
+		{
+			txt: "   \nexample.com,1,DIRECT\n# a comment line\nfoo=bar\nexample.org,2,RESELLER",
+			expected: []adstxt.Row{
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.com",
+						PublisherAccountID: "1",
+						AccountType:        adstxt.AccountDirect,
+					},
+					Variable: nil,
+				},
+				{
+					Record:   nil,
+					Variable: &adstxt.Variable{Key: "foo", Value: "bar"},
+				},
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.org",
+						PublisherAccountID: "2",
+						AccountType:        adstxt.AccountReseller,
+					},
+					Variable: nil,
+				},
+			},
+		},
+		{
+			txt: "key=value\nexample.com,1,DIRECT\nkey2=value2",
+			expected: []adstxt.Row{
+				{
+					Record:   nil,
+					Variable: &adstxt.Variable{Key: "key", Value: "value"},
+				},
+				{
+					Record: &adstxt.Record{
+						ExchangeDomain:     "example.com",
+						PublisherAccountID: "1",
+						AccountType:        adstxt.AccountDirect,
+					},
+					Variable: nil,
+				},
+				{
+					Record:   nil,
+					Variable: &adstxt.Variable{Key: "key2", Value: "value2"},
+				},
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.txt, func(t *testing.T) {
+			rows, err := adstxt.ParseRows(strings.NewReader(c.txt))
+			if err != nil {
+				t.Errorf("parse rows failed: %s", err)
+			}
+			if d := cmp.Diff(c.expected, rows); d != "" {
+				t.Errorf("mismatch (-want +got):\n%s", d)
 			}
 		})
 	}

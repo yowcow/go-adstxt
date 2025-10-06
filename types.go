@@ -6,14 +6,10 @@ import (
 	"strings"
 )
 
-type Row interface {
-	fmt.Stringer
+type Row struct {
+	Record   *Record
+	Variable *Variable
 }
-
-var (
-	_ Row = (*Record)(nil)
-	_ Row = (*Variable)(nil)
-)
 
 const (
 	AccountDirect AccountType = iota
@@ -64,18 +60,18 @@ func parseAccountType(s string) AccountType {
 	}
 }
 
-func parseRow(row string) (Row, error) {
+func parseRow(row string) (*Row, error) {
 	if strings.Contains(row, "=") {
 		// this is a variable declaration
 		v, err := parseVariable(row)
 		if v != nil || err != nil {
-			return v, err
+			return &Row{Variable: v}, err
 		}
 	} else {
 		// this is a record declaration
 		r, err := parseRecord(row)
 		if r != nil || err != nil {
-			return r, err
+			return &Row{Record: r}, err
 		}
 	}
 	return nil, nil
@@ -110,25 +106,6 @@ func parseRecord(row string) (*Record, error) {
 	return &r, nil
 }
 
-func (r *Record) String() string {
-	row := make([]string, 3, 4)
-	row[0] = r.ExchangeDomain
-	row[1] = r.PublisherAccountID
-
-	switch r.AccountType {
-	case AccountDirect:
-		row[2] = "DIRECT"
-	case AccountReseller:
-		row[2] = "RESELLER"
-	}
-
-	if r.AuthorityID != "" {
-		row = append(row, r.AuthorityID)
-	}
-
-	return strings.Join(row, ",")
-}
-
 // Variable is a variable row defined in iab (e.g., contact, subdomain, and such).
 type Variable struct {
 	Key   string
@@ -145,8 +122,4 @@ func parseVariable(row string) (*Variable, error) {
 		Key:   normalizeField(fields[0]),
 		Value: normalizeField(fields[1]),
 	}, nil
-}
-
-func (v *Variable) String() string {
-	return strings.Join([]string{v.Key, v.Value}, "=")
 }
