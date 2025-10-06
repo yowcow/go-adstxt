@@ -138,7 +138,6 @@ func TestParseRows(t *testing.T) {
 					},
 				},
 				{
-					Record:   nil,
 					Variable: &adstxt.Variable{Key: "foo", Value: "bar"},
 				},
 			},
@@ -152,10 +151,8 @@ func TestParseRows(t *testing.T) {
 						PublisherAccountID: "2",
 						AccountType:        adstxt.AccountReseller,
 					},
-					Variable: nil,
 				},
 				{
-					Record:   nil,
 					Variable: &adstxt.Variable{Key: "baz", Value: "qux"},
 				},
 			},
@@ -169,10 +166,8 @@ func TestParseRows(t *testing.T) {
 						PublisherAccountID: "1",
 						AccountType:        adstxt.AccountDirect,
 					},
-					Variable: nil,
 				},
 				{
-					Record:   nil,
 					Variable: &adstxt.Variable{Key: "foo", Value: "bar"},
 				},
 				{
@@ -181,7 +176,6 @@ func TestParseRows(t *testing.T) {
 						PublisherAccountID: "2",
 						AccountType:        adstxt.AccountReseller,
 					},
-					Variable: nil,
 				},
 			},
 		},
@@ -189,7 +183,6 @@ func TestParseRows(t *testing.T) {
 			txt: "key=value\nexample.com,1,DIRECT\nkey2=value2",
 			expected: []adstxt.Row{
 				{
-					Record:   nil,
 					Variable: &adstxt.Variable{Key: "key", Value: "value"},
 				},
 				{
@@ -198,10 +191,8 @@ func TestParseRows(t *testing.T) {
 						PublisherAccountID: "1",
 						AccountType:        adstxt.AccountDirect,
 					},
-					Variable: nil,
 				},
 				{
-					Record:   nil,
 					Variable: &adstxt.Variable{Key: "key2", Value: "value2"},
 				},
 			},
