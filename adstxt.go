@@ -6,31 +6,7 @@ import (
 	"net/http"
 )
 
-// Record is ads.txt data field defined in iab.
-type Record struct {
-	// ExchangeDomain is domain name of the advertising system
-	ExchangeDomain string
-
-	// PublisherAccountID is the identifier associated with the seller
-	// or reseller account within the advertising system.
-	PublisherAccountID string
-
-	// AccountType is an enumeration of the type of account.
-	AccountType AccountType
-
-	// AuthorityID is an ID that uniquely identifies the advertising system
-	// within a certification authority.
-	AuthorityID string
-}
-
-const (
-	AccountDirect AccountType = iota
-	AccountReseller
-	AccountOther
-)
-
-type AccountType int
-
+// Deprecated: to be removed
 func Get(rawurl string) ([]Record, error) {
 	resp, err := http.Get(rawurl)
 	if err != nil {
@@ -40,6 +16,7 @@ func Get(rawurl string) ([]Record, error) {
 	return Parse(resp.Body)
 }
 
+// Deprecated: use ParseRows instead.
 func Parse(in io.Reader) ([]Record, error) {
 	records := make([]Record, 0)
 	p := NewParser(in)
@@ -59,4 +36,24 @@ LOOP:
 	}
 
 	return records, nil
+}
+
+func ParseRows(in io.Reader) ([]Row, error) {
+	rows := make([]Row, 0)
+	p := NewParser(in)
+
+	for {
+		row, err := p.ParseRow()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if row != nil {
+			rows = append(rows, *row)
+		}
+	}
+
+	return rows, nil
 }

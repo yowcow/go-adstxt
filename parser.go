@@ -2,9 +2,7 @@ package adstxt
 
 import (
 	"bufio"
-	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
@@ -19,15 +17,11 @@ func NewParser(r io.Reader) *Parser {
 }
 
 // Parse returns a *Record or an error
+// Deprecated: use ParseRow instead to support both records and variables.
 func (p *Parser) Parse() (*Record, error) {
 	// scans for the first valid row or returns an error otherwise
 	for p.scanner.Scan() {
-		text := strings.TrimSpace(p.scanner.Text())
-
-		// remove comment
-		if idx := strings.IndexRune(text, '#'); idx >= 0 {
-			text = text[0:idx]
-		}
+		text := normalizeRow(p.scanner.Text())
 
 		// blank line
 		if len(text) == 0 {
@@ -36,8 +30,11 @@ func (p *Parser) Parse() (*Record, error) {
 
 		// returns when either is non-nil
 		r, err := parseRow(text)
-		if r != nil || err != nil {
-			return r, err
+		if err != nil {
+			return nil, err
+		}
+		if r != nil && r.Record != nil {
+			return r.Record, nil
 		}
 	}
 
@@ -48,53 +45,38 @@ func (p *Parser) Parse() (*Record, error) {
 	return nil, io.EOF
 }
 
-func parseAccountType(s string) AccountType {
-	switch strings.ToUpper(s) {
-	case "DIRECT":
-		return AccountDirect
-	case "RESELLER":
-		return AccountReseller
-	default:
-		// NOTE or should be error ?
-		return AccountOther
+// ParseRow returns a Row
+func (p *Parser) ParseRow() (*Row, error) {
+	// scans for the first valid row or returns an error otherwise
+	for p.scanner.Scan() {
+		text := normalizeRow(p.scanner.Text())
+
+		// blank line
+		if len(text) == 0 {
+			continue
+		}
+
+		r, err := parseRow(text)
+		if r != nil || err != nil {
+			return r, err
+		}
+
 	}
+
+	if err := p.scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return nil, io.EOF
 }
 
-var leadingBlankRe = regexp.MustCompile(`\A[\s\t]+`)
-var trailingBlankRe = regexp.MustCompile(`[\s\t]+\z`)
+func normalizeRow(s string) string {
+	text := strings.TrimSpace(s)
 
-func normalize(s string) string {
-	// sanitize blank characters
-	s = leadingBlankRe.ReplaceAllString(s, "")
-	s = trailingBlankRe.ReplaceAllString(s, "")
-	return s
-}
-
-func parseRow(row string) (*Record, error) {
-	// dropping extension field
-	if idx := strings.Index(row, ";"); idx != -1 {
-		row = row[0:idx]
+	// remove comment
+	if idx := strings.IndexRune(text, '#'); idx >= 0 {
+		text = text[0:idx]
 	}
 
-	fields := strings.Split(row, ",")
-
-	// if the first field contains "=", then the row is for variable declaration
-	if strings.Index(fields[0], "=") != -1 {
-		return nil, nil
-	}
-
-	if l := len(fields); l != 3 && l != 4 {
-		return nil, fmt.Errorf("ads.txt has fields length is incorrect.: %s", row)
-	}
-
-	// otherwise the row is valid
-	var r Record
-	r.ExchangeDomain = strings.ToLower(normalize(fields[0]))
-	r.PublisherAccountID = normalize(fields[1])
-	r.AccountType = parseAccountType(normalize(fields[2]))
-	// AuthorityID is optional
-	if len(fields) >= 4 {
-		r.AuthorityID = normalize(fields[3])
-	}
-	return &r, nil
+	return text
 }
