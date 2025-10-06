@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// Row represents a parsed ads.txt row.
+// Exactly one of Record or Variable will be non-nil when parsing succeeds.
+// Row is nil when an ads.txt row is not a valid row.
 type Row struct {
 	Record   *Record
 	Variable *Variable
