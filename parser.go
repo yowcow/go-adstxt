@@ -17,7 +17,7 @@ func NewParser(r io.Reader) *Parser {
 }
 
 // Parse returns a *Record or an error
-// Deprecated: use ParseRow instead.
+// Deprecated: use ParseRow instead to support both records and variables.
 func (p *Parser) Parse() (*Record, error) {
 	// scans for the first valid row or returns an error otherwise
 	for p.scanner.Scan() {
